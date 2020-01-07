@@ -25,16 +25,15 @@ namespace WorkshopManagerNET.Model
           .WithMany(c => c.WorkerOrders)
           .HasForeignKey(ow => ow.OrderId);
 
-
       modelBuilder.Entity<AppUserToAppRole>()
           .HasKey(auar => new { auar.UserId, auar.RoleId });
       modelBuilder.Entity<AppUserToAppRole>()
-          .HasOne(auar => auar.User)
-          .WithMany(u => u.Roles)
+          .HasOne(auar => auar.Role)
+          .WithMany(u => u.Users)
           .HasForeignKey(ow => ow.RoleId);
       modelBuilder.Entity<AppUserToAppRole>()
-          .HasOne(auar => auar.Role)
-          .WithMany(r => r.Users)
+          .HasOne(auar => auar.User)
+          .WithMany(r => r.Roles)
           .HasForeignKey(auar => auar.UserId);
 
       //relacja 1:n  pomiędzy  Client : Order
@@ -93,7 +92,6 @@ namespace WorkshopManagerNET.Model
           s => byte.Parse(s.ToString()),
           s => (OrderStatusEnum)Enum.Parse(typeof(OrderStatusEnum), s.ToString())
         ).HasMaxLength(128);
-
     }
 
     public DbSet<Worker> Workers { get; set; }
@@ -102,6 +100,7 @@ namespace WorkshopManagerNET.Model
     public DbSet<Client> Clients { get; set; }
     public DbSet<Part> Parts { get; set; }
     public DbSet<Trainee> Trainees { get; set; }
-
+    public DbSet<TimeLog> TimeLogs { get; set; }
+    public DbSet<Department> Departments { get; set; }
   }
 }
