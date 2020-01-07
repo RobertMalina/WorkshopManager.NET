@@ -68,9 +68,15 @@ namespace WorkshopManagerNET.Model
         .HasValue<Worker>("Any")
         .HasValue<Mechanician>("Mechanician");
 
-      modelBuilder.Entity<Worker>()
-        .Property("WorkerType")
-        .HasMaxLength(128);
+      modelBuilder.Entity<Worker>().Property("WorkerType").HasMaxLength(128);
+
+      modelBuilder.Entity<Order>().Property(o => o.Archived).HasDefaultValue(false);
+      modelBuilder.Entity<Order>()
+        .Property(m => m.Status)
+        .HasConversion(
+          s => byte.Parse(s.ToString()),
+          s => (OrderStatusEnum)Enum.Parse(typeof(OrderStatusEnum), s.ToString())
+        ).HasMaxLength(128);
 
     }
 

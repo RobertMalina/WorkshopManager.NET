@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WorkshopManagerNET.Model
@@ -8,6 +9,9 @@ namespace WorkshopManagerNET.Model
   {
     [Key]
     public long Id { get; set; }
+    public long ParentPartId { get; set; }
+    public virtual Part ParentalPartSet { get; set; }
+    public virtual ICollection<Part> SubParts { get; set; }
 
     [Required]
     [MaxLength(64)]
