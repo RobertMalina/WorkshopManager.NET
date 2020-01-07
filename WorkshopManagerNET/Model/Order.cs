@@ -54,5 +54,6 @@ namespace WorkshopManagerNET.Model
     public ICollection<Part> Parts { get; set; }
     public OrderStatusEnum Status { get; set; }
     public bool Archived { get; set; }
+    public ICollection<TimeLog> TimeLogs { get; set; }
   }
 }

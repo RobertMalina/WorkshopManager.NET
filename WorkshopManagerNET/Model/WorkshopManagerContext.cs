@@ -43,10 +43,26 @@ namespace WorkshopManagerNET.Model
           .WithMany(c => c.Orders)
           .IsRequired();
 
-      //relacja 1:n  pomiędzy  Client : Part
+      //relacja 1:n  pomiędzy  Order : Part
       modelBuilder.Entity<Order>()
           .HasMany(o => o.Parts)
           .WithOne(p => p.Order);
+
+      //relacja 1:n  pomiędzy  Order : TimeLogs...
+      modelBuilder.Entity<Order>()
+        .HasMany(o => o.TimeLogs)
+        .WithOne(p => p.Order);
+
+      //relacja 1:n  pomiędzy  Worker : TimeLogs...
+      modelBuilder.Entity<Worker>()
+        .HasMany(o => o.TimeLogs)
+        .WithOne(p => p.Worker);
+
+      //definicja tabeli o strukturze hierarchicznej (self referencing table)
+      modelBuilder.Entity<Part>()
+        .HasMany(p => p.SubParts)
+        .WithOne(p => p.ParentalPartSet)
+        .HasForeignKey(p => p.ParentPartSetId);
 
       //relacja 1:1  pomiędzy  Worker : Trainee
       modelBuilder.Entity<Worker>()

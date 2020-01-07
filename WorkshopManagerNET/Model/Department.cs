@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WorkshopManager.net.Model
+namespace WorkshopManagerNET.Model
 {
   class Department
   {

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WorkshopManagerNET.Model;
 
-namespace WorkshopManager.net.Model
+namespace WorkshopManagerNET.Model
 {
   class TimeLog
   {

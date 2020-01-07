@@ -9,7 +9,7 @@ namespace WorkshopManagerNET.Model
   {
     [Key]
     public long Id { get; set; }
-    public long ParentPartId { get; set; }
+    public long ParentPartSetId { get; set; }
     public virtual Part ParentalPartSet { get; set; }
     public virtual ICollection<Part> SubParts { get; set; }
 
