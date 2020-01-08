@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using WorkshopManager.net.ModelQuery;
 using WorkshopManagerNET.Model;
 
 namespace WorkshopManager.net.Utils
 {
   class WorkshopManagerCli
   {
-    private DataAccessManager _dataAccess;
-    public WorkshopManagerCli()
-    {
-      _dataAccess = new DataAccessManager();
-    }
-
     public void Run()
     {
       string cmd = string.Empty;
@@ -32,18 +25,6 @@ namespace WorkshopManager.net.Utils
               {
                 Console.WriteLine(c.FirstName);
               }
-              break;
-            }
-          case "data clear":
-          case "data c":
-          case "data clear -aware":
-          case "data clear -a":          
-            {
-              _dataAccess.Clear();
-              break;
-            }
-          case "new":
-            {
               break;
             }
           case "exit":

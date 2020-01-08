@@ -37,3 +37,4 @@ msbuild.wrn
 .vs/
 
 *sample-data*
+WorkshopManagerNET/DataGenerator/sources/

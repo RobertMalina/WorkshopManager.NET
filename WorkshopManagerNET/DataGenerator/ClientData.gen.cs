@@ -7,7 +7,7 @@ using WorkshopManagerNET.Model;
 
 namespace WorkshopManager.net.DataGenerator
 {
-  class ClientData : IDataGenerator<Client>
+  class ClientData
   {
     private const string _jsonSrcPath = @"..\..\..\DataGenerator\sources\clients.sample-data.json";
 
