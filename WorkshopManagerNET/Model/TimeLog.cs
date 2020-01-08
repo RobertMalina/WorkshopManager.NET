@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WorkshopManagerNET.Model
 {
+  [Table("TimeLog")]
   class TimeLog
   {
     [Key]

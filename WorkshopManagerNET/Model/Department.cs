@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WorkshopManagerNET.Model
 {
+  [Table("Department")]
   class Department
   {
     [Key]
