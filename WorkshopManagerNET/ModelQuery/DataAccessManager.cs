@@ -44,6 +44,7 @@ namespace WorkshopManager.net.ModelQuery
       try
       {
         int affectedRowsCount = 0;
+        
         using(var dbAccess = new WorkshopManagerContext())
         {
           affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [TimeLog]");
@@ -53,6 +54,7 @@ namespace WorkshopManager.net.ModelQuery
           affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [Worker]");
           affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [Part]");
           affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [Department]");
+
           affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [AppUserToAppRole]");
           affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [AppUser]");
           affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [AppRole]");
