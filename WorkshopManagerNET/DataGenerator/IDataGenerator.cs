@@ -8,6 +8,8 @@ namespace WorkshopManager.net.DataGenerator
   public interface IDataGenerator<T> where T : class
   {
     JsonModelsReader<T> JsonReader { get; set; }
-    bool InsertDefaultFromJson();
+    void LoadModels();
+    T[] Models { get; set; }
+    bool InsertModels();
   }
 }
