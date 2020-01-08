@@ -29,6 +29,7 @@ namespace WorkshopManagerNET.Model
     public ICollection<OrderToWorker> WorkerOrders { get; set; }
     public Trainee Trainee { get; set; }
 
+    public ICollection<Order> SupervisedOrders { get; set; }
     public ICollection<TimeLog> TimeLogs { get; set; }
   }
 }

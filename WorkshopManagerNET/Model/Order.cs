@@ -18,8 +18,9 @@ namespace WorkshopManagerNET.Model
     public long ClientId { get; set; }
 
     [ForeignKey("Supervisor")]
-    public long SupervisorId { get; set; }
-    public Worker Supervisor { get; set; }
+    public long? SupervisorId { get; set; }
+
+    public virtual Worker Supervisor { get; set; }
 
     [Required]
     [MaxLength(128)]

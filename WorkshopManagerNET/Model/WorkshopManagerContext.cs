@@ -10,7 +10,6 @@ namespace WorkshopManagerNET.Model
     {
       optionsBuilder.UseSqlServer("Server=127.0.0.1;Database=WorkshopManagerDbLab7;User Id=sa; Password=Domdom18#;");
     }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       //relacja n:m  pomiędzy  Worker : Order
@@ -92,8 +91,14 @@ namespace WorkshopManagerNET.Model
           s => byte.Parse(s.ToString()),
           s => (OrderStatusEnum)Enum.Parse(typeof(OrderStatusEnum), s.ToString())
         ).HasMaxLength(128);
-    }
 
+      modelBuilder.Entity<Order>().Property(o => o.SupervisorId).HasDefaultValue(null);
+
+      modelBuilder.Entity<Order>()
+        .HasOne(o => o.Supervisor)
+        .WithMany(s => s.SupervisedOrders)
+        .OnDelete(DeleteBehavior.SetNull);
+    }
     public DbSet<Worker> Workers { get; set; }
     public DbSet<Mechanician> Mechanicians { get; set; }
     public DbSet<Order> Orders { get; set; }

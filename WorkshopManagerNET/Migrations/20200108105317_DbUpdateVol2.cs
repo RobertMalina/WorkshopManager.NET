@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace WorkshopManagerNET.Migrations
 {
-    public partial class NewRequirementsAdjustment : Migration
+    public partial class DbUpdateVol2 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -65,8 +65,7 @@ namespace WorkshopManagerNET.Migrations
             migrationBuilder.AddColumn<long>(
                 name: "SupervisorId",
                 table: "Order",
-                nullable: false,
-                defaultValue: 0L);
+                nullable: true);
 
             migrationBuilder.CreateTable(
                 name: "AppRole",
@@ -192,7 +191,7 @@ namespace WorkshopManagerNET.Migrations
                 column: "SupervisorId",
                 principalTable: "Worker",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.SetNull);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Part_Part_ParentPartSetId",

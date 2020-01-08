@@ -10,8 +10,8 @@ using WorkshopManagerNET.Model;
 namespace WorkshopManagerNET.Migrations
 {
     [DbContext(typeof(WorkshopManagerContext))]
-    [Migration("20200107223739_NewRequirementsAdjustment")]
-    partial class NewRequirementsAdjustment
+    [Migration("20200108105317_DbUpdateVol2")]
+    partial class DbUpdateVol2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -158,8 +158,10 @@ namespace WorkshopManagerNET.Migrations
                         .HasColumnType("tinyint")
                         .HasMaxLength(128);
 
-                    b.Property<long>("SupervisorId")
-                        .HasColumnType("bigint");
+                    b.Property<long?>("SupervisorId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(null);
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -363,10 +365,9 @@ namespace WorkshopManagerNET.Migrations
                         .IsRequired();
 
                     b.HasOne("WorkshopManagerNET.Model.Worker", "Supervisor")
-                        .WithMany()
+                        .WithMany("SupervisedOrders")
                         .HasForeignKey("SupervisorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("WorkshopManagerNET.Model.OrderToWorker", b =>

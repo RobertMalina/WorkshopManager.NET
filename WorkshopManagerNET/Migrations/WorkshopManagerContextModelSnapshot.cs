@@ -156,8 +156,10 @@ namespace WorkshopManagerNET.Migrations
                         .HasColumnType("tinyint")
                         .HasMaxLength(128);
 
-                    b.Property<long>("SupervisorId")
-                        .HasColumnType("bigint");
+                    b.Property<long?>("SupervisorId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(null);
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -361,10 +363,9 @@ namespace WorkshopManagerNET.Migrations
                         .IsRequired();
 
                     b.HasOne("WorkshopManagerNET.Model.Worker", "Supervisor")
-                        .WithMany()
+                        .WithMany("SupervisedOrders")
                         .HasForeignKey("SupervisorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("WorkshopManagerNET.Model.OrderToWorker", b =>
