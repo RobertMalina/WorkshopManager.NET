@@ -10,7 +10,7 @@ using WorkshopManagerNET.Model;
 namespace WorkshopManagerNET.Migrations
 {
     [DbContext(typeof(WorkshopManagerContext))]
-    [Migration("20200108105317_DbUpdateVol2")]
+    [Migration("20200108111801_DbUpdateVol2")]
     partial class DbUpdateVol2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -396,7 +396,7 @@ namespace WorkshopManagerNET.Migrations
                     b.HasOne("WorkshopManagerNET.Model.Part", "ParentalPartSet")
                         .WithMany("SubParts")
                         .HasForeignKey("ParentPartSetId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientNoAction)
                         .IsRequired();
                 });
 

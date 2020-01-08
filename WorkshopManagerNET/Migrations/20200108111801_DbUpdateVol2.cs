@@ -198,8 +198,7 @@ namespace WorkshopManagerNET.Migrations
                 table: "Part",
                 column: "ParentPartSetId",
                 principalTable: "Part",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                principalColumn: "Id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

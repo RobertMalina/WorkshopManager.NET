@@ -98,6 +98,11 @@ namespace WorkshopManagerNET.Model
         .HasOne(o => o.Supervisor)
         .WithMany(s => s.SupervisedOrders)
         .OnDelete(DeleteBehavior.SetNull);
+
+      modelBuilder.Entity<Part>()
+        .HasMany(p => p.SubParts)
+        .WithOne(s => s.ParentalPartSet)
+        .OnDelete(DeleteBehavior.ClientCascade);
     }
     public DbSet<Worker> Workers { get; set; }
     public DbSet<Mechanician> Mechanicians { get; set; }
