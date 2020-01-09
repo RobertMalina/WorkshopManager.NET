@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WorkshopManagerNET.Model.Auth;
 
 namespace WorkshopManagerNET.Model
 {
   [Table("Worker")]
-  class Worker
+  public partial class Worker
   {
     [Key]
     public long Id { get; set; }
@@ -28,8 +29,11 @@ namespace WorkshopManagerNET.Model
   
     public ICollection<OrderToWorker> WorkerOrders { get; set; }
     public Trainee Trainee { get; set; }
-
     public ICollection<Order> SupervisedOrders { get; set; }
     public ICollection<TimeLog> TimeLogs { get; set; }
+
+    [ForeignKey("AppUser")]
+    public long AppUserId { get; set; }
+    public AppUser AppUser { get; set; }
   }
 }
