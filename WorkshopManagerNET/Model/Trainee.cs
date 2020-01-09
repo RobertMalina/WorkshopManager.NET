@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace WorkshopManagerNET.Model
 {
   [Table("Trainee")]
-  class Trainee
+  public class Trainee
   {
     [Key]
     public long Id { get; set; }
@@ -21,8 +21,7 @@ namespace WorkshopManagerNET.Model
 
     [Required]
     [ForeignKey("Supervisor")]
-    public long SupervisorId { get; set; }
-    
+    public long SupervisorId { get; set; }  
     public Worker Supervisor { get; set; }
   }
 }

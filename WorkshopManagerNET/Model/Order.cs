@@ -8,7 +8,7 @@ namespace WorkshopManagerNET.Model
   public enum OrderStatusEnum { Unknown, Registered, InProgress, Finished }
 
   [Table("Order")]
-  class Order
+  public partial class Order
   {
     [Key]
     public long Id { get; set; }

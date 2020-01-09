@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace WorkshopManagerNET.Model
 {
   [Table("Client")]
-  class Client
+  public partial class Client
   {
     [Key]
     public long Id { get; set; }

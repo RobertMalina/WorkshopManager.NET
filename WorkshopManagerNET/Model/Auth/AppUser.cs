@@ -6,6 +6,7 @@ using System.Text;
 
 namespace WorkshopManagerNET.Model.Auth
 {
+  [Table("AppUser")]
   public class AppUser
   {
     [Key]
@@ -18,7 +19,10 @@ namespace WorkshopManagerNET.Model.Auth
     [MaxLength(64)]
     [Column(TypeName = "nvarchar(64)")]
     public string PasswordHash { get; set; }
-
     public ICollection<AppUserToAppRole> Roles { get; set; }
+
+    //[ForeignKey("Worker")]
+    //public long WorkerId { get; set; }
+    public Worker Worker { get; set; }
   }
 }

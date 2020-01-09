@@ -1,5 +1,8 @@
-﻿namespace WorkshopManagerNET.Model.Auth
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace WorkshopManagerNET.Model.Auth
 {
+  [Table("AppUserToAppRole")]
   public class AppUserToAppRole
   {
     public AppUser User { get; set; }

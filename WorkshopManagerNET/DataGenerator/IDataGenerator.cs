@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using WorkshopManager.net.Utils;
 
 namespace WorkshopManager.net.DataGenerator
@@ -11,5 +12,6 @@ namespace WorkshopManager.net.DataGenerator
     void LoadModels();
     T[] Models { get; set; }
     bool InsertModels();
+    Task<bool> InsertModelsAsync();
   }
 }

@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace WorkshopManagerNET.Model
 {
   [Table("TimeLog")]
-  class TimeLog
+  public class TimeLog
   {
     [Key]
     public long Id { get; set; }

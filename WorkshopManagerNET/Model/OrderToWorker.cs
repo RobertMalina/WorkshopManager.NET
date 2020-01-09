@@ -3,7 +3,7 @@
 namespace WorkshopManagerNET.Model
 {
   [Table("OrderToWorker")]
-  class OrderToWorker
+  public class OrderToWorker
   {
     public Order Order { get; set; }
     public long OrderId { get; set; }

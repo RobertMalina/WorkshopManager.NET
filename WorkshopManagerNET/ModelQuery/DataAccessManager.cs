@@ -43,21 +43,11 @@ namespace WorkshopManager.net.ModelQuery
     {
       try
       {
-        int affectedRowsCount = 0;
-        using(var dbAccess = new WorkshopManagerContext())
+        using (var dbAccess = new WorkshopManagerContext())
         {
-          affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [TimeLog]");
-          affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [Order]");
-          affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [OrderToWorker]");
-          affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [Client]");
-          affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [Worker]");
-          affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [Part]");
-          affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [Department]");
-          affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [AppUserToAppRole]");
-          affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [AppUser]");
-          affectedRowsCount += dbAccess.Database.ExecuteSqlRaw("TRUNCATE TABLE [AppRole]");
+          dbAccess.Database.ExecuteSqlRaw("EXEC [dbo].[ClearDatabase]");
         }
-        Console.WriteLine($"All data has been truncated, {affectedRowsCount} rows affected");
+        Console.WriteLine("All database data has been dropped...");
         return true;
       }
       catch (Exception e)

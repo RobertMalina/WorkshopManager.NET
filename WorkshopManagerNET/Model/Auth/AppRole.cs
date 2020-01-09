@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WorkshopManagerNET.Model.Auth
 {
+  [Table("AppRole")]
   public class AppRole
   {
     [Key]

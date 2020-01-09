@@ -1,5 +1,4 @@
-﻿using WorkshopManagerNET.Model.Auth;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 
 namespace WorkshopManagerNET.Model
@@ -8,7 +7,7 @@ namespace WorkshopManagerNET.Model
   {
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-      optionsBuilder.UseSqlServer("Server=127.0.0.1;Database=WorkshopManagerDbLab7;User Id=sa; Password=Domdom18#;");
+      optionsBuilder.UseSqlServer("Server=127.0.0.1;Database=Maq;User Id=sa; Password=Domdom18#;");
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -88,8 +87,8 @@ namespace WorkshopManagerNET.Model
       modelBuilder.Entity<Order>()
         .Property(m => m.Status)
         .HasConversion(
-          s => byte.Parse(s.ToString()),
-          s => (OrderStatusEnum)Enum.Parse(typeof(OrderStatusEnum), s.ToString())
+          s => s.ToString(),
+          s => (OrderStatusEnum)Enum.Parse(typeof(OrderStatusEnum), s)
         ).HasMaxLength(128);
 
       modelBuilder.Entity<Order>().Property(o => o.SupervisorId).HasDefaultValue(null);
@@ -103,7 +102,16 @@ namespace WorkshopManagerNET.Model
         .HasMany(p => p.SubParts)
         .WithOne(s => s.ParentalPartSet)
         .OnDelete(DeleteBehavior.ClientCascade);
+
+      // połączenie użytkownika związanego z logiką biznesową z użytkownikiem systemu uwierzytelnienia
+      modelBuilder.Entity<AppUser>()
+        .HasOne(w => w.Worker)
+        .WithOne(t => t.AppUser)
+        .HasForeignKey<Worker>(t => t.AppUserId);
+
     }
+
+    #region Bussines-logic entities
     public DbSet<Worker> Workers { get; set; }
     public DbSet<Mechanician> Mechanicians { get; set; }
     public DbSet<Order> Orders { get; set; }
@@ -112,5 +120,11 @@ namespace WorkshopManagerNET.Model
     public DbSet<Trainee> Trainees { get; set; }
     public DbSet<TimeLog> TimeLogs { get; set; }
     public DbSet<Department> Departments { get; set; }
+    #endregion
+
+    #region Auth-system entities
+    public DbSet<AppUser> Users { get; set; }
+    public DbSet<AppRole> Roles { get; set; }
+    #endregion
   }
 }

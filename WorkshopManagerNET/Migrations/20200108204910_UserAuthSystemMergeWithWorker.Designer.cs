@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkshopManagerNET.Model;
 
 namespace WorkshopManagerNET.Migrations
 {
     [DbContext(typeof(WorkshopManagerContext))]
-    partial class WorkshopManagerContextModelSnapshot : ModelSnapshot
+    [Migration("20200108204910_UserAuthSystemMergeWithWorker")]
+    partial class UserAuthSystemMergeWithWorker
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -19,7 +21,7 @@ namespace WorkshopManagerNET.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("WorkshopManagerNET.Model.AppRole", b =>
+            modelBuilder.Entity("WorkshopManagerNET.Model.Auth.AppRole", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -32,10 +34,10 @@ namespace WorkshopManagerNET.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AppRole");
+                    b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("WorkshopManagerNET.Model.AppUser", b =>
+            modelBuilder.Entity("WorkshopManagerNET.Model.Auth.AppUser", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -52,12 +54,18 @@ namespace WorkshopManagerNET.Migrations
                         .HasColumnType("nvarchar(128)")
                         .HasMaxLength(64);
 
+                    b.Property<long>("WorkerId")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
-                    b.ToTable("AppUser");
+                    b.HasIndex("WorkerId")
+                        .IsUnique();
+
+                    b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("WorkshopManagerNET.Model.AppUserToAppRole", b =>
+            modelBuilder.Entity("WorkshopManagerNET.Model.Auth.AppUserToAppRole", b =>
                 {
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
@@ -152,9 +160,8 @@ namespace WorkshopManagerNET.Migrations
                     b.Property<decimal>("EstimatedTimeInHours")
                         .HasColumnType("decimal(3,1)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(128)")
+                    b.Property<byte>("Status")
+                        .HasColumnType("tinyint")
                         .HasMaxLength(128);
 
                     b.Property<long?>("SupervisorId")
@@ -293,9 +300,6 @@ namespace WorkshopManagerNET.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<long>("AppUserId")
-                        .HasColumnType("bigint");
-
                     b.Property<short?>("Bid")
                         .HasColumnType("smallint");
 
@@ -314,15 +318,15 @@ namespace WorkshopManagerNET.Migrations
                         .HasColumnType("char(10)")
                         .HasMaxLength(10);
 
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("WorkerType")
                         .IsRequired()
                         .HasColumnType("nvarchar(128)")
                         .HasMaxLength(128);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AppUserId")
-                        .IsUnique();
 
                     b.ToTable("Worker");
 
@@ -346,15 +350,24 @@ namespace WorkshopManagerNET.Migrations
                     b.HasDiscriminator().HasValue("Mechanician");
                 });
 
-            modelBuilder.Entity("WorkshopManagerNET.Model.AppUserToAppRole", b =>
+            modelBuilder.Entity("WorkshopManagerNET.Model.Auth.AppUser", b =>
                 {
-                    b.HasOne("WorkshopManagerNET.Model.AppRole", "Role")
+                    b.HasOne("WorkshopManagerNET.Model.Worker", "Worker")
+                        .WithOne("User")
+                        .HasForeignKey("WorkshopManagerNET.Model.Auth.AppUser", "WorkerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WorkshopManagerNET.Model.Auth.AppUserToAppRole", b =>
+                {
+                    b.HasOne("WorkshopManagerNET.Model.Auth.AppRole", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WorkshopManagerNET.Model.AppUser", "User")
+                    b.HasOne("WorkshopManagerNET.Model.Auth.AppUser", "User")
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -425,15 +438,6 @@ namespace WorkshopManagerNET.Migrations
                     b.HasOne("WorkshopManagerNET.Model.Worker", "Supervisor")
                         .WithOne("Trainee")
                         .HasForeignKey("WorkshopManagerNET.Model.Trainee", "SupervisorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("WorkshopManagerNET.Model.Worker", b =>
-                {
-                    b.HasOne("WorkshopManagerNET.Model.AppUser", "AppUser")
-                        .WithOne("Worker")
-                        .HasForeignKey("WorkshopManagerNET.Model.Worker", "AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
