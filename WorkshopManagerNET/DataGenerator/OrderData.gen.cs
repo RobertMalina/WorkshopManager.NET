@@ -20,6 +20,42 @@ namespace WorkshopManagerNET.Model
 
 namespace WorkshopManager.net.DataGenerator
 {
+  class RandomHelper
+  {
+    private ClientData _clientsGenerator
+    {
+      get
+      {
+        return new ClientData();
+      }
+    }
+    public void SetStatusesFor(Order[] orders)
+    {
+      var rand = new Random();
+      foreach (Order order in orders)
+      {       
+        var oStatusRand = rand.Next(0, 10);
+        if (oStatusRand < 2)
+        {
+          order.Status = OrderStatusEnum.Registered;
+        }
+        else if (oStatusRand < 5)
+        {
+          order.Status = OrderStatusEnum.InProgress;
+        }
+        else
+        {
+          order.Status = OrderStatusEnum.Finished;
+        }
+      }
+    }
+
+    public void MatchClientsWith(Order[] orders)
+    {
+      _clientsGenerator.MatchRandomlyWith(orders);
+    }
+  }
+
   class OrderCase
   {
     public string Title { get; set; }
@@ -36,6 +72,8 @@ namespace WorkshopManager.net.DataGenerator
     private const string _jsonFileName = "orders.sample-data.json";
     private const string _orderCasesjsonFileName = "order-cases.json";
 
+    public RandomHelper RandomSetup { get; set; }
+
     public JsonModelsReader<Order> JsonReader
     {
       get
@@ -48,6 +86,7 @@ namespace WorkshopManager.net.DataGenerator
       }
       set => _reader = value;
     }
+
     public Order[] Models
     {
       get
@@ -66,32 +105,8 @@ namespace WorkshopManager.net.DataGenerator
       {
         using (var dbAccess = new WorkshopManagerContext())
         {
-          #region Clients Get || Insert & Get
-          Client[] clients = null;         
-          clients = dbAccess.Clients.ToArray();
-          if (clients.Length == 0)
-          {
-            var insertSucceeded = await InsertClients();
-            if (insertSucceeded)
-            {
-              clients = dbAccess.Clients.ToArray();
-            }
-            else
-            {
-              Console.WriteLine("Could not insert Clients... (necessary if Order's are about to be inserted)");
-              return false;
-            }
-          }
-          #endregion
-
-          for(int i = 0; i<clients.Length; i++)
-          {
-            var order = Models[i];
-            order.ClientId = i;
-            order.Client = clients[i];
-            order.Status = OrderStatusEnum.Registered;
-            order.DateRegister = DateTime.Now;
-          }
+          RandomSetup.MatchClientsWith(Models);
+          RandomSetup.SetStatusesFor(Models);
           dbAccess.BulkInsert(Models.Where(m=>m.Client != null).ToArray());
           dbAccess.SaveChanges();
           return true;
@@ -104,11 +119,7 @@ namespace WorkshopManager.net.DataGenerator
       }
     }
 
-    public async Task<bool> InsertClients()
-    {
-      var clientsGenerator = new ClientData();
-      return await clientsGenerator.InsertModels();
-    }
+    
 
     public void LoadModels()
     {
