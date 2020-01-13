@@ -20,11 +20,21 @@ namespace WorkshopManagerNET.Model
 
 namespace WorkshopManager.net.DataGenerator
 {
+  class OrderCase
+  {
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public string VehicleDescription { get; set; }
+    public ComplexityClassEnum Complexity { get; set; }
+  }
   class OrderData : IDataGenerator<Order>
   {
     private JsonModelsReader<Order> _reader = null;
+    private JsonModelsReader<OrderCase> _casesReader = new JsonModelsReader<OrderCase>(_orderCasesjsonFileName);
+
     private Order[] _models = null;
     private const string _jsonFileName = "orders.sample-data.json";
+    private const string _orderCasesjsonFileName = "order-cases.json";
 
     public JsonModelsReader<Order> JsonReader
     {
@@ -100,10 +110,21 @@ namespace WorkshopManager.net.DataGenerator
       return await clientsGenerator.InsertModels();
     }
 
-
     public void LoadModels()
     {
-      Models = JsonReader.GetModels().ToArray();
+      var sampleCases = _casesReader.GetModels().ToArray();
+      var orders = new List<Order>();
+      foreach (OrderCase orderCase in sampleCases)
+        orders.Add(new Order()
+        {
+          Title = orderCase.Title,
+          VehicleDescription = orderCase.VehicleDescription,
+          DateRegister = DateTime.Now,
+          ComplexityClass = orderCase.Complexity,
+          Description = orderCase.Description
+        });
+
+      Models = orders.ToArray();
     }
 
     public bool InsertModels()
