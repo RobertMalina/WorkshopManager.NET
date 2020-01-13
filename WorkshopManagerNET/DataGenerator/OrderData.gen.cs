@@ -14,14 +14,179 @@ namespace WorkshopManagerNET.Model
     public override string ToString()
     {
       return $"{Title} {VehicleDescription} {DateRegister.ToShortDateString()}";
-    }  
+    }
   }
 }
 
 namespace WorkshopManager.net.DataGenerator
 {
+  class OrderInProgressDurations
+  {
+    public int[] _lowComplexityRanges = new int[2] { 0, 2 };
+    private int[] _mediumComplexityRanges = new int[2] { 0, 5 };
+    public int[] _hightComplexityRanges = new int[2] { 0, 14 };
+    public int[] _fromRegisterToStartRange = new int[2] { 0, 14 };
+
+    public int StartsSince(DateTime registerDate)
+    {
+
+      return 0;
+    }
+    public int When(ComplexityClassEnum complexity, DateTime refrenceDate, bool inProgress = false)
+    {
+      int days;
+      int[] targetRangesSet;
+
+      switch (complexity)
+      {
+        case ComplexityClassEnum.Low:
+          {
+            targetRangesSet = _lowComplexityRanges;
+            break;
+          }
+        case ComplexityClassEnum.Medium:
+          {
+            targetRangesSet = _mediumComplexityRanges;
+            break;
+          }
+        case ComplexityClassEnum.High:
+          {
+            targetRangesSet = _hightComplexityRanges;
+            break;
+          }
+        default:
+          {
+            targetRangesSet = _lowComplexityRanges;
+            break;
+          }
+
+      }
+      int maxDaysAmount = 0;
+      var daysSinceRefDate = (DateTime.Now - refrenceDate).Days;
+      if (daysSinceRefDate < targetRangesSet[1])
+      {
+        maxDaysAmount = daysSinceRefDate;
+      }
+      else
+      {
+        maxDaysAmount = targetRangesSet[1];
+      }
+
+      days = _rand.Next(targetRangesSet[0], maxDaysAmount);
+
+      if (inProgress)
+      {
+        return days / 2;
+      }
+      return days;
+    }
+
+    public int When(DateTime registerDate)
+    {
+      int days = 0;
+      int[] targetRangesSet = _fromRegisterToStartRange;
+
+      return days;
+    }
+
+    Random _rand;
+    public OrderInProgressDurations()
+    {
+      _rand = new Random();
+    }
+  }
+
+
+  class RandomDaysRanges
+  {
+    public OrderInProgressDurations Durations { get; set; }
+
+    Random _rand;
+    public RandomDaysRanges()
+    {
+      _rand = new Random();
+      Durations = new OrderInProgressDurations();
+    }
+
+    public int RegisterFreshAgo { get { return _rand.Next(0, 14); } }
+    public int RegisterOldAgo { get { return _rand.Next(0, 180); } }
+  }
+  class CredibleDatetimeGenerator
+  {
+    RandomDaysRanges DaysRanges { get; set; }
+    public CredibleDatetimeGenerator()
+    {
+      DaysRanges = new RandomDaysRanges();
+    }
+
+    public void SetForRegisteredOrder(Order order)
+    {
+      var daysSinceRegistration = DaysRanges.RegisterFreshAgo;
+      order.DateRegister = DateTime.Now.AddDays(-daysSinceRegistration).AddHours(8);
+    }
+    public void SetForOrderInProgress(Order order)
+    {
+      var daysSinceRegistration = DaysRanges.RegisterOldAgo;
+      order.DateRegister = DateTime.Now.AddDays(-daysSinceRegistration).AddHours(8);
+      switch (order.ComplexityClass)
+      {
+        case ComplexityClassEnum.Low:
+          {
+            order.DateStart = DateTime.Now.AddDays(-DaysRanges.Durations
+              .When(ComplexityClassEnum.Low, order.DateRegister, true));
+            break;
+          }
+        case ComplexityClassEnum.Medium:
+          {
+            order.DateStart = DateTime.Now.AddDays(-DaysRanges.Durations
+              .When(ComplexityClassEnum.Medium, order.DateRegister, true));
+            break;
+          }
+        case ComplexityClassEnum.High:
+          {
+            order.DateStart = DateTime.Now.AddDays(-DaysRanges.Durations
+              .When(ComplexityClassEnum.High, order.DateRegister, true));
+            break;
+          }
+        default:
+          {
+            break;
+          }
+      }
+    }
+    public void SetForFinishedOrder(Order order, bool clientHasActiveOrder = false)
+    {
+      var daysSinceRegistration = DaysRanges.RegisterOldAgo;
+      order.DateRegister = DateTime.Now.AddDays(-daysSinceRegistration).AddHours(8);
+      order.DateStart = order.DateRegister.AddDays(
+        -DaysRanges.Durations.StartsSince(order.DateRegister)).AddHours(8);
+      
+      switch (order.ComplexityClass)
+      {
+        case ComplexityClassEnum.Low:
+          {
+            order.
+            break;
+          }
+        case ComplexityClassEnum.Medium:
+          {
+            break;
+          }
+        case ComplexityClassEnum.High:
+          {
+            break;
+          }
+        default:
+          {
+            break;
+          }
+      }
+    }
+  }
+
   class RandomHelper
   {
+    public CredibleDatetimeGenerator CredibleDatetimes { get; set; }
     private ClientData _clientsGenerator
     {
       get
@@ -33,7 +198,7 @@ namespace WorkshopManager.net.DataGenerator
     {
       var rand = new Random();
       foreach (Order order in orders)
-      {       
+      {
         var oStatusRand = rand.Next(0, 10);
         if (oStatusRand < 2)
         {
@@ -54,6 +219,35 @@ namespace WorkshopManager.net.DataGenerator
     {
       _clientsGenerator.MatchRandomlyWith(orders);
     }
+
+    public void SetCredibleDateTimesFor(Order[] orders)
+    {
+      foreach (Order order in orders)
+      {
+        switch (order.Status)
+        {
+          case OrderStatusEnum.InProgress:
+            {
+              CredibleDatetimes.SetForOrderInProgress(order);
+              break;
+            }
+          case OrderStatusEnum.Registered:
+            {
+              CredibleDatetimes.SetForRegisteredOrder(order);
+              break;
+            }
+          case OrderStatusEnum.Finished:
+            {
+              CredibleDatetimes.SetForFinishedOrder(order);
+              break;
+            }
+          default:
+            {
+              break;
+            }
+        }
+      }
+    }
   }
 
   class OrderCase
@@ -72,7 +266,7 @@ namespace WorkshopManager.net.DataGenerator
     private const string _jsonFileName = "orders.sample-data.json";
     private const string _orderCasesjsonFileName = "order-cases.json";
 
-    public RandomHelper RandomSetup { get; set; }
+    public RandomHelper RandomDataSetup { get; set; }
 
     public JsonModelsReader<Order> JsonReader
     {
@@ -103,23 +297,23 @@ namespace WorkshopManager.net.DataGenerator
     {
       try
       {
+        RandomDataSetup.MatchClientsWith(Models);
+        RandomDataSetup.SetStatusesFor(Models);
+        RandomDataSetup.SetCredibleDateTimesFor(Models);
+
         using (var dbAccess = new WorkshopManagerContext())
         {
-          RandomSetup.MatchClientsWith(Models);
-          RandomSetup.SetStatusesFor(Models);
-          dbAccess.BulkInsert(Models.Where(m=>m.Client != null).ToArray());
+          dbAccess.BulkInsert(Models);
           dbAccess.SaveChanges();
           return true;
         }
       }
-      catch(Exception e)
+      catch (Exception e)
       {
         Console.WriteLine(e);
         return false;
       }
     }
-
-    
 
     public void LoadModels()
     {
