@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkshopManagerNET.Model;
 
 namespace WorkshopManagerNET.Migrations
 {
     [DbContext(typeof(WorkshopManagerContext))]
-    partial class WorkshopManagerContextModelSnapshot : ModelSnapshot
+    [Migration("20200112191512_ComplexityClassDefaultValue")]
+    partial class ComplexityClassDefaultValue
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

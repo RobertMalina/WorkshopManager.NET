@@ -90,6 +90,15 @@ namespace WorkshopManagerNET.Model
           s => s.ToString(),
           s => (OrderStatusEnum)Enum.Parse(typeof(OrderStatusEnum), s)
         ).HasMaxLength(128);
+      modelBuilder.Entity<Order>()
+        .Property(m => m.ComplexityClass)
+        .HasConversion(
+          s => s.ToString(),
+          s => (ComplexityClassEnum)Enum.Parse(typeof(ComplexityClassEnum), s)
+        ).HasMaxLength(128);
+      modelBuilder.Entity<Order>()
+        .Property(m => m.ComplexityClass)
+        .HasDefaultValue(ComplexityClassEnum.InEstimation);
 
       modelBuilder.Entity<Order>().Property(o => o.SupervisorId).HasDefaultValue(null);
 

@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace WorkshopManagerNET.Model
 {
   public enum OrderStatusEnum { Unknown, Registered, InProgress, Finished }
+  public enum ComplexityClassEnum { InEstimation, Low, Medium, High, Specific }
 
   [Table("Order")]
   public partial class Order
@@ -54,6 +55,7 @@ namespace WorkshopManagerNET.Model
     public ICollection<OrderToWorker> WorkerOrders { get; set; }
     public ICollection<Part> Parts { get; set; }
     public OrderStatusEnum Status { get; set; }
+    public ComplexityClassEnum ComplexityClass { get; set; }
     public bool Archived { get; set; }
     public ICollection<TimeLog> TimeLogs { get; set; }
   }
