@@ -20,19 +20,81 @@ namespace WorkshopManagerNET.Model
 
 namespace WorkshopManager.net.DataGenerator
 {
-  class OrderInProgressDurations
+  class OrderRandomDurations
   {
-    public int[] _lowComplexityRanges = new int[2] { 0, 2 };
+    private int[] _lowComplexityRanges = new int[2] { 0, 2 };
     private int[] _mediumComplexityRanges = new int[2] { 0, 5 };
-    public int[] _hightComplexityRanges = new int[2] { 0, 14 };
-    public int[] _fromRegisterToStartRange = new int[2] { 0, 14 };
+    private int[] _hightComplexityRanges = new int[2] { 0, 14 };
+    private int[] _fromRegisterToStartRange = new int[2] { 4, 20 };
 
-    public int StartsSince(DateTime registerDate)
+    public int FromRegisterToStart
     {
-
-      return 0;
+      get
+      {
+        return _rand.Next(
+        _fromRegisterToStartRange[0],
+        _fromRegisterToStartRange[1]);
+      }
     }
-    public int When(ComplexityClassEnum complexity, DateTime refrenceDate, bool inProgress = false)
+    public int FromRegisterToStartMin
+    {
+      get
+      {
+        return _fromRegisterToStartRange[0];
+      }
+    }
+    public int LowComplexityRandom
+    {
+      get
+      {
+        return _rand.Next(_lowComplexityRanges[0], _lowComplexityRanges[1]);
+      }
+    }
+    public int LowComplexityMin
+    {
+      get
+      {
+        return _lowComplexityRanges[0];
+      }
+    }
+    public int MediumComplexityRandom
+    {
+      get
+      {
+        return _rand.Next(_mediumComplexityRanges[0], _mediumComplexityRanges[1]);
+      }
+    }
+    public int MediumComplexityMin
+    {
+      get
+      {
+        return _mediumComplexityRanges[0];
+      }
+    }
+    public int HighComplexityMin
+    {
+      get
+      {
+        return _hightComplexityRanges[0];
+      }
+    }
+    public int HighComplexityRandom
+    {
+      get
+      {
+        return _rand.Next(_hightComplexityRanges[0], _hightComplexityRanges[1]);
+      }
+    }
+
+    /// <summary>
+    /// Zwraca losowo wygenerowaną, wiarygodną liczbę dni jaka mogła upłynąć od momentu rozpoczęcia zlecenia
+    /// do dnia obecnego (DateTime.Now). Zwrócona liczba po odjęciu od daty rejestracji (AddDays(-value)) powinna 
+    /// prowadzić do uzyskania daty chronologicznie późniejszej od daty rejestracji. 
+    /// </summary>
+    /// <param name="complexity"> stopień złożoności zlecenia - na jego podstawie, wygenerowana zostanie losowo liczba dni jaka upłynęła do momentu zaangażowania mechaników w realizację.</param>
+    /// <param name="refrenceDate"> data chronologicznie wcześniejsza od daty jaką uzyska się po odjęciu wyniku działania metody od obecnej daty</param>
+    /// <returns></returns>
+    public int ForInProgress(ComplexityClassEnum complexity, DateTime refrenceDate)
     {
       int days;
       int[] targetRangesSet;
@@ -59,7 +121,6 @@ namespace WorkshopManager.net.DataGenerator
             targetRangesSet = _lowComplexityRanges;
             break;
           }
-
       }
       int maxDaysAmount = 0;
       var daysSinceRefDate = (DateTime.Now - refrenceDate).Days;
@@ -74,11 +135,7 @@ namespace WorkshopManager.net.DataGenerator
 
       days = _rand.Next(targetRangesSet[0], maxDaysAmount);
 
-      if (inProgress)
-      {
-        return days / 2;
-      }
-      return days;
+      return days / 2;
     }
 
     public int When(DateTime registerDate)
@@ -90,27 +147,75 @@ namespace WorkshopManager.net.DataGenerator
     }
 
     Random _rand;
-    public OrderInProgressDurations()
+    public OrderRandomDurations()
     {
       _rand = new Random();
     }
   }
-
-
   class RandomDaysRanges
   {
-    public OrderInProgressDurations Durations { get; set; }
+    public OrderRandomDurations Durations { get; set; }
 
     Random _rand;
     public RandomDaysRanges()
     {
       _rand = new Random();
-      Durations = new OrderInProgressDurations();
+      Durations = new OrderRandomDurations();
     }
 
-    public int RegisterFreshAgo { get { return _rand.Next(0, 14); } }
-    public int RegisterOldAgo { get { return _rand.Next(0, 180); } }
+    private int[] _registerFreshAgoRanges = { 0, 14 };
+    private int[] _registerAgoRanges = { 0, 90 };
+    private int[] _registerAgoRangesClientHasActiveOrderNow = { 90, 180 };
+
+    public int RegisterFreshAgo
+    {
+      get
+      { return _rand.Next(_registerFreshAgoRanges[0], _registerFreshAgoRanges[1]); }
+    }
+    public int RegisterAgo
+    {
+      get
+      { return _rand.Next(_registerAgoRanges[0], _registerAgoRanges[1]); }
+    }
+
+    /// <summary>
+    /// Zwraca pseudo losową liczbę dni w ciągu których klient który obecnie posiada aktywne zlecenie
+    /// (ma przypisane zlecenie z stanem Registered || InProgress).
+    /// Wartość wygenerowanej liczby ma być większa od wartości wygenerowanej przez RegisterAgo.
+    /// </summary>
+    public int RegisterAgoClientHasActiveOrderNow
+    {
+      get
+      {
+        return _rand.Next(
+        _registerAgoRangesClientHasActiveOrderNow[0],
+        _registerAgoRangesClientHasActiveOrderNow[1]);
+      }
+    }
+
   }
+
+  public static class DateTimeExt
+  {
+    /// <summary>
+    /// Generuje losowy czas "relatywnie" do dnia roboczego - przyjęto że ów zaczyna się od 7:00 a kończy o 17:00.
+    /// UWAGA: Zakłada że przekazana data ma ustawione wartości czasu jako 00:00:000.
+    /// </summary>
+    /// <param name="dateTime"></param>
+    /// <returns></returns>
+    public static DateTime AddTimeRelativeToWorkday(this DateTime dateTime)
+    {
+      var quartersCountMax = new TimeSpan(10, 0, 0).Minutes / 15;
+      var quartersCount = new Random().Next(1, quartersCountMax);
+      var relTimespan = new TimeSpan(0, 8, quartersCount * 15, DateTime.Now.Second, DateTime.Now.Millisecond);
+      dateTime.AddHours(relTimespan.Hours);
+      dateTime.AddMinutes(relTimespan.Minutes);
+      dateTime.AddSeconds(relTimespan.Seconds);
+      dateTime.AddMilliseconds(relTimespan.Milliseconds);
+      return dateTime;
+    }
+  }
+
   class CredibleDatetimeGenerator
   {
     RandomDaysRanges DaysRanges { get; set; }
@@ -122,30 +227,34 @@ namespace WorkshopManager.net.DataGenerator
     public void SetForRegisteredOrder(Order order)
     {
       var daysSinceRegistration = DaysRanges.RegisterFreshAgo;
-      order.DateRegister = DateTime.Now.AddDays(-daysSinceRegistration).AddHours(8);
+      order.DateRegister = DateTime.Now.AddDays(-daysSinceRegistration).AddTimeRelativeToWorkday();
     }
     public void SetForOrderInProgress(Order order)
     {
-      var daysSinceRegistration = DaysRanges.RegisterOldAgo;
-      order.DateRegister = DateTime.Now.AddDays(-daysSinceRegistration).AddHours(8);
+      var daysSinceRegistration = DaysRanges.RegisterFreshAgo;
+      order.DateRegister = DateTime.Now.AddDays(-daysSinceRegistration)
+        .AddTimeRelativeToWorkday();
       switch (order.ComplexityClass)
       {
         case ComplexityClassEnum.Low:
           {
             order.DateStart = DateTime.Now.AddDays(-DaysRanges.Durations
-              .When(ComplexityClassEnum.Low, order.DateRegister, true));
+              .ForInProgress(ComplexityClassEnum.Low, order.DateRegister))
+              .AddTimeRelativeToWorkday();
             break;
           }
         case ComplexityClassEnum.Medium:
           {
             order.DateStart = DateTime.Now.AddDays(-DaysRanges.Durations
-              .When(ComplexityClassEnum.Medium, order.DateRegister, true));
+              .ForInProgress(ComplexityClassEnum.Medium, order.DateRegister))
+              .AddTimeRelativeToWorkday();
             break;
           }
         case ComplexityClassEnum.High:
           {
             order.DateStart = DateTime.Now.AddDays(-DaysRanges.Durations
-              .When(ComplexityClassEnum.High, order.DateRegister, true));
+              .ForInProgress(ComplexityClassEnum.High, order.DateRegister))
+              .AddTimeRelativeToWorkday();
             break;
           }
         default:
@@ -154,26 +263,113 @@ namespace WorkshopManager.net.DataGenerator
           }
       }
     }
+    private void AdjustTooEarlyRegisterDateOf(Order order)
+    {
+      order.DateRegister.AddDays(-DaysRanges.Durations.FromRegisterToStartMin);
+    }
+    private void MoveBackwardsOrderDates(Order order, int days)
+    {
+      order.DateRegister.AddDays(-days);
+      order.DateStart.Value.AddDays(-days);
+    }
     public void SetForFinishedOrder(Order order, bool clientHasActiveOrder = false)
     {
-      var daysSinceRegistration = DaysRanges.RegisterOldAgo;
-      order.DateRegister = DateTime.Now.AddDays(-daysSinceRegistration).AddHours(8);
-      order.DateStart = order.DateRegister.AddDays(
-        -DaysRanges.Durations.StartsSince(order.DateRegister)).AddHours(8);
-      
+      // zał:
+      // 1. registerDate < startDate < endDate <= DateTime.Now
+
+      #region DateRegister setup
+      // 2. (registerDate + daysToReceiveStartDate) < DateTime.Now      inaczej data rozpoczęcia będzie w przyszłości
+      // 3. (startDate + daysToReceiveEndDate) < DateTime.Now
+      if (clientHasActiveOrder)
+      {
+        order.DateRegister = DateTime.Now.AddDays(-DaysRanges.RegisterAgoClientHasActiveOrderNow)
+          .AddTimeRelativeToWorkday();
+      }
+      else
+      {
+        order.DateRegister = DateTime.Now.AddDays(-DaysRanges.RegisterAgo)
+          .AddTimeRelativeToWorkday();
+      }
+      #endregion
+
+      #region DateStart setup
+
+      int daysToReceiveStartDate = DaysRanges.Durations.FromRegisterToStart,
+       nowVsRegisterDiff = (DateTime.Now - order.DateRegister).Days;
+
+      if (daysToReceiveStartDate > nowVsRegisterDiff)
+      {
+        order.DateStart = order.DateRegister;
+        AdjustTooEarlyRegisterDateOf(order);
+      }
+      else
+      {
+        order.DateStart = order.DateRegister.AddDays(daysToReceiveStartDate);
+      }
+
+      #endregion
+
+      #region DateEnd setup
+
+      int daysToReceiveEndDate = 0,
+        nowVsStartDiff = (DateTime.Now - order.DateStart.Value).Days;
+
+      //zał
+      // DateEnd <= DateTime.Now
+      // daysToReceiveEndDate <= daysSinceStart
+      // DateTime.Now is latest possible EndDate
+
       switch (order.ComplexityClass)
       {
         case ComplexityClassEnum.Low:
           {
-            order.
+            daysToReceiveEndDate = DaysRanges.Durations.LowComplexityRandom;
+            if (daysToReceiveEndDate > nowVsStartDiff)
+            {
+              if (DaysRanges.Durations.LowComplexityMin > nowVsStartDiff)
+              {
+                MoveBackwardsOrderDates(order, nowVsStartDiff);
+                daysToReceiveEndDate = nowVsStartDiff;
+              }
+              else
+              {
+                daysToReceiveEndDate = DaysRanges.Durations.LowComplexityMin;
+              }
+            }
             break;
           }
         case ComplexityClassEnum.Medium:
           {
+            daysToReceiveEndDate = DaysRanges.Durations.MediumComplexityRandom;
+            if (daysToReceiveEndDate > nowVsStartDiff)
+            {
+              if (DaysRanges.Durations.MediumComplexityMin > nowVsStartDiff)
+              {
+                MoveBackwardsOrderDates(order, nowVsStartDiff);
+                daysToReceiveEndDate = nowVsStartDiff;
+              }
+              else
+              {
+                daysToReceiveEndDate = DaysRanges.Durations.MediumComplexityMin;
+              }
+            }
             break;
           }
         case ComplexityClassEnum.High:
           {
+            daysToReceiveEndDate = DaysRanges.Durations.HighComplexityRandom;
+            if (daysToReceiveEndDate > nowVsStartDiff)
+            {
+              if (DaysRanges.Durations.HighComplexityMin > nowVsStartDiff)
+              {
+                MoveBackwardsOrderDates(order, nowVsStartDiff);
+                daysToReceiveEndDate = nowVsStartDiff;
+              }
+              else
+              {
+                daysToReceiveEndDate = DaysRanges.Durations.HighComplexityMin;
+              }
+            }
             break;
           }
         default:
@@ -181,6 +377,9 @@ namespace WorkshopManager.net.DataGenerator
             break;
           }
       }
+      order.DateEnd = order.DateStart.Value.AddDays(daysToReceiveEndDate)
+        .AddTimeRelativeToWorkday();
+      #endregion
     }
   }
 
