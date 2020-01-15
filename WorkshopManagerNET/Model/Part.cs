@@ -11,7 +11,7 @@ namespace WorkshopManagerNET.Model
     public long Id { get; set; }
 
     [ForeignKey("ParentalPartSet")]
-    public long ParentPartSetId { get; set; } 
+    public long? ParentPartSetId { get; set; } 
     public virtual Part ParentalPartSet { get; set; }
     public virtual ICollection<Part> SubParts { get; set; }
 

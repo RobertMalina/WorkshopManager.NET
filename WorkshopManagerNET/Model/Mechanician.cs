@@ -13,7 +13,7 @@ namespace WorkshopManagerNET.Model
     Gearboxes,
     Turbochargers,
   }
-  class Mechanician: Worker
+  public class Mechanician: Worker
   {
     public SpecializationEnum Specialization { get; set; }
 

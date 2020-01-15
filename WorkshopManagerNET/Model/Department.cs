@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace WorkshopManagerNET.Model
 {
   [Table("Department")]
-  class Department
+  public class Department
   {
     [Key]
     public int Id { get; set; }
