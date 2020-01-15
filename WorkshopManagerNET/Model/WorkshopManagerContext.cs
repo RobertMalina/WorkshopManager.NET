@@ -3,7 +3,7 @@ using System;
 
 namespace WorkshopManagerNET.Model
 {
-  class WorkshopManagerContext : DbContext
+  public class WorkshopManagerContext : DbContext
   {
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -61,6 +61,10 @@ namespace WorkshopManagerNET.Model
         .WithOne(p => p.ParentalPartSet)
         .HasForeignKey(p => p.ParentPartSetId);
 
+      modelBuilder.Entity<Part>(entity => {
+        entity.HasIndex(p => p.Code).IsUnique();
+      });
+
       //relacja 1:1  pomiędzy  Worker : Trainee
       modelBuilder.Entity<Worker>()
           .HasOne(w => w.Trainee)
@@ -81,7 +85,8 @@ namespace WorkshopManagerNET.Model
         .HasValue<Worker>("Any")
         .HasValue<Mechanician>("Mechanician");
 
-      modelBuilder.Entity<Worker>().Property("WorkerType").HasMaxLength(128);
+      modelBuilder.Entity<Worker>().Property("WorkerType")
+        .HasMaxLength(128);
 
       modelBuilder.Entity<Order>().Property(o => o.Archived).HasDefaultValue(false);
       modelBuilder.Entity<Order>()
@@ -124,6 +129,7 @@ namespace WorkshopManagerNET.Model
     public DbSet<Worker> Workers { get; set; }
     public DbSet<Mechanician> Mechanicians { get; set; }
     public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderToWorker> OrderToWorkers { get; set; }
     public DbSet<Client> Clients { get; set; }
     public DbSet<Part> Parts { get; set; }
     public DbSet<Trainee> Trainees { get; set; }
