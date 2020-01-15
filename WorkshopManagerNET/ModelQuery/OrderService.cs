@@ -29,7 +29,7 @@ namespace WorkshopManager.net.ModelQuery
                 .ToArray();
 
             var engagedWorkers =
-              dbAccess.Workers.Where(w =>
+              dbAccess.Mechanicians.Where(w =>
                 engagedWorkersIds.Contains(w.Id)).ToArray();
 
             if (engagedWorkers.Count() > 0)

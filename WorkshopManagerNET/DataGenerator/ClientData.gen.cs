@@ -1,4 +1,5 @@
 ﻿using EFCore.BulkExtensions;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,36 +46,17 @@ namespace WorkshopManager.net.DataGenerator
       {
         if (_models == null)
         {
-          LoadModels();
+          LoadJSONModels();
         }
         return _models;
       }
       set => _models = value;
     }
 
-    public bool InsertModels()
-    {
-      try
-      {
-        using(var dbAccess = new WorkshopManagerContext())
-        {
-          dbAccess.BulkInsertAsync(Models);
-          dbAccess.SaveChanges();
-        }
-        return true;
-      }
-      catch(Exception e)
-      {
-        Console.WriteLine(e);
-        return false;
-      }
-    }
-
     public void MatchRandomlyWith(Order[] orders)
     {
       LoadDbModels();
       var clientIdsOfActiveOrders = new List<long>(); //-> because there shouldn't exists more than one active order (Registered || InProgress) of particullar client
-      var rand = new Random();
       foreach (Order order in orders)
       {
         var client = GetRandom();
@@ -89,7 +71,7 @@ namespace WorkshopManager.net.DataGenerator
               }
               order.ClientId = client.Id;
               order.Client = client;
-              clientIdsOfActiveOrders.Add(client.Id);              
+              clientIdsOfActiveOrders.Add(client.Id);
               break;
             }
           case OrderStatusEnum.Finished:
@@ -107,46 +89,44 @@ namespace WorkshopManager.net.DataGenerator
       }
     }
 
+    public bool PersistModels(WorkshopManagerContext dbAccess)
+    {
+      if (Models.Length == 0)
+        LoadJSONModels();
 
+      dbAccess.BulkInsert<Client>(Models);
+      var res = dbAccess.SaveChanges();
+      if(res != -1)
+      {
+        Models = dbAccess.Clients.ToArray();
+        return true;
+      }
+      return false;
+    }
     public Task<bool> InsertModelsAsync()
     {
       throw new NotImplementedException();
     }
 
-    public void LoadModels()
+    public void LoadJSONModels()
     {
       Models = JsonReader.GetModels().ToArray();
     }
 
-    public async Task<bool> LoadDbModels()
+    public void LoadDbModels()
     {
       try
       {
         using (var dbAccess = new WorkshopManagerContext())
         {
-          Client[] clients = null;
-          clients = dbAccess.Clients.ToArray();
-          if (clients.Length == 0)
-          {
-            var insertSucceeded =  InsertModels();
-            if (insertSucceeded)
-            {
-              clients = dbAccess.Clients.ToArray();
-            }
-            else
-            {
-              Console.WriteLine("Could not insert Clients... (necessary if Order's are about to be inserted)");
-              return false;
-            }
-          }
-          Models = clients;
-          return true;
+          Models = dbAccess.Clients.ToArray();
+          if (Models.Length == 0)
+            PersistModels(dbAccess);
         }
       }
       catch (Exception e)
       {
         Console.WriteLine(e);
-        return false;
       }
     }
 
@@ -170,5 +150,7 @@ namespace WorkshopManager.net.DataGenerator
     {
       throw new NotImplementedException();
     }
+
+
   }
 }

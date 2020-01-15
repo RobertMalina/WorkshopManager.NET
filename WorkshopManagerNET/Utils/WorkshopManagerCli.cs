@@ -17,7 +17,7 @@ namespace WorkshopManager.net.Utils
       while (!cmd.Equals("exit"))
       {
         Console.Write("WorkshopManagerCli> ");
-        cmd = Console.ReadLine();
+        cmd = Console.ReadLine().ToLower();
         switch (cmd)
         {
           case "": // enter
@@ -48,7 +48,7 @@ namespace WorkshopManager.net.Utils
           case "i orders":
             {
               var generator = new OrderData();
-              generator.InsertModelsAsync();
+              generator.LoadDbModels();
               break;
             }
           case "list mechanicians":
@@ -71,9 +71,22 @@ namespace WorkshopManager.net.Utils
             }
           case "db clear":
           case "db clear -aware":
+          case "db clear -a":
           case "db c -a":
             {
-              dataManager.Clear();
+
+              dataManager.Clear(cmd);
+              break;
+            }
+          case "db reset":
+          case "db reset -aware":
+          case "db reset -a":
+          case "db r -a":
+            {
+
+              dataManager.Clear(cmd);
+              var generator = new OrderData();
+              generator.LoadDbModels();
               break;
             }
           case "exit":

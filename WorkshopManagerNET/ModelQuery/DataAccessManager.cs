@@ -24,16 +24,16 @@ namespace WorkshopManager.net.ModelQuery
         return string.Empty;
       }
     }
-    public void Clear(string awareFlag = "")
+    public void Clear(string cmd)
     {
-      if (awareFlag.Equals("-a") || awareFlag.Equals("-aware"))
+      if (cmd.Contains(" -aware") || cmd.Contains(" -a"))
       {
         TruncateAllData();
       }
       else
       {
         var decision = GetDecision();
-        if (decision.Equals("Y"))
+        if (decision.Equals("Y", StringComparison.InvariantCultureIgnoreCase))
         {
           TruncateAllData();
         }
