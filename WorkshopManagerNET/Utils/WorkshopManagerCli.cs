@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,12 +37,38 @@ namespace WorkshopManager.net.Utils
             }
           case "list orders":
           case "l orders":
+          case "l orders -r":
             {
-              var generator = new OrderData();
-              foreach (Order o in generator.Models)
+              if (cmd.Contains("-r"))
               {
-                Console.WriteLine(o.ToString());
+                Console.Write("how many days ago? ");
+                int days;
+                var read = Console.ReadLine();
+                if(Int32.TryParse(read, out days))
+                {
+                  using (var db = new WorkshopManagerContext())
+                  {
+                    var res = db.Orders.FromSqlRaw<Order>($"SELECT * FROM [dbo].[GetOrdersRegisteredSince]({days})");
+                    foreach(Order o in res)
+                    {
+                      Console.WriteLine(o.ToString());
+                    }
+                  }
+                }
+                else
+                {
+                  Console.WriteLine("Incorrect days value passed...");
+                }
               }
+              else
+              {
+                var generator = new OrderData();
+                foreach (Order o in generator.Models)
+                {
+                  Console.WriteLine(o.ToString());
+                }
+              }
+
               break;
             }
           case "insert orders":
@@ -83,7 +110,6 @@ namespace WorkshopManager.net.Utils
           case "db reset -a":
           case "db r -a":
             {
-
               dataManager.Clear(cmd);
               var generator = new OrderData();
               generator.LoadDbModels();

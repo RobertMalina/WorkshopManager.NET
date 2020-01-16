@@ -102,11 +102,9 @@ namespace WorkshopManager.net.DataGenerator
       {
         try
         {
-          //correct way to save TPH hierarchy related entities using BulkInsert (SaveChanges() CAN NOT BE ivoked)
           dbAccess.Mechanicians.AddRange(Models);
           dbAccess.BulkInsert(Models);
           res = Models.Length;
-          //without dbAccess.SaveChanges();
         }
         catch {}      
       }
