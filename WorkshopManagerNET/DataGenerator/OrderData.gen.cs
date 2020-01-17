@@ -438,9 +438,9 @@ namespace WorkshopManager.net.DataGenerator
       }
     }
 
-    public void MatchMechaniciansWith(Order[] orders)
+    public void MatchWithMechanicians()
     {
-      _mechaniciansGenerator.MatchRandomlyWith(orders);
+      _mechaniciansGenerator.MatchRandomlyWithExistingOrders();
     }
 
     public void GenerateTimeLogsFor(Order[] orders)
@@ -562,7 +562,7 @@ namespace WorkshopManager.net.DataGenerator
         Models = dbAccess.Orders.ToArray();
       }
 
-      TestDataSetup.MatchMechaniciansWith(Models);
+      TestDataSetup.MatchWithMechanicians();
       TestDataSetup.GenerateTimeLogsFor(Models);
       TestDataSetup.GeneratePartsFor(Models);
 

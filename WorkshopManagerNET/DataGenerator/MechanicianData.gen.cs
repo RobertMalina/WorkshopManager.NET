@@ -106,7 +106,7 @@ namespace WorkshopManager.net.DataGenerator
           dbAccess.BulkInsert(Models);
           res = Models.Length;
         }
-        catch {}      
+        catch { }
       }
       if (res != -1)
       {
@@ -177,28 +177,31 @@ namespace WorkshopManager.net.DataGenerator
       return selectedMechs.ToArray();
     }
 
-    public bool MatchRandomlyWith(Order[] orders)
+    public bool MatchRandomlyWithExistingOrders()
     {
       LoadDbModels();
       var bindings = new List<OrderToWorker>();
-
-      foreach (Order order in orders)
-      {
-        var mechanicians = GetAtLeastOneRandomFrom();
-        var supervisor = GetAtLeastOneRandomFrom(mechanicians, 1, 1).SingleOrDefault();
-        if (supervisor != null)
-        {
-          order.SupervisorId = supervisor.Id;
-          order.Supervisor = supervisor;
-        }
-        foreach (Mechanician mechanician in mechanicians)
-        {
-          bindings.Add(new OrderToWorker() { OrderId = order.Id, WorkerId = mechanician.Id });
-        }
-      }
       try
       {
-        InsertOrderToWorkerBindings(bindings.ToArray());
+        using (var dbAccess = new WorkshopManagerContext())
+        {
+          var orders = dbAccess.Orders.ToArray();
+          foreach (Order order in orders)
+          {
+            var mechanicians = GetAtLeastOneRandomFrom();
+            var supervisor = GetAtLeastOneRandomFrom(mechanicians, 1, 1).SingleOrDefault();
+            if (supervisor != null)
+            {
+              order.SupervisorId = supervisor.Id;
+            }
+            foreach (Mechanician mechanician in mechanicians)
+            {
+              bindings.Add(new OrderToWorker() { OrderId = order.Id, WorkerId = mechanician.Id });
+            }
+          }
+          dbAccess.BulkInsert<OrderToWorker>(bindings);
+          dbAccess.SaveChanges();
+        }
         return true;
       }
       catch (Exception e)
@@ -208,13 +211,6 @@ namespace WorkshopManager.net.DataGenerator
       }
     }
 
-    private void InsertOrderToWorkerBindings(OrderToWorker[] bindings)
-    {
-      using (var dbAccess = new WorkshopManagerContext())
-      {
-        dbAccess.BulkInsert<OrderToWorker>(bindings);
-      }
-    }
     public void LoadJSONModels()
     {
       Models = JsonReader.GetModels().ToArray();
