@@ -9,7 +9,6 @@ using WorkshopManagerNET.Model;
 
 namespace WorkshopManagerNET.Model
 {
-  public enum AppRoleEnum { regular, supervisor, administrator, mechanician }
   partial class Worker
   {
     public override string ToString()
@@ -17,21 +16,6 @@ namespace WorkshopManagerNET.Model
       return $"{FirstName} {LastName} {PhoneNumber}";
     }
     public string UserName { get { return $"{FirstName.ToLower()}_{LastName.ToLower()}"; } }
-  }
-
-  partial class AppUser
-  {
-    public string Token { get; set; }
-    public string Password { get; set; }
-    public static bool IsValidToInsert(AppUser appUser)
-    {
-      if (appUser == null)
-        return false;
-
-      return
-        appUser.PasswordHash != null &&
-        appUser.Username != null;
-    }
   }
 }
 

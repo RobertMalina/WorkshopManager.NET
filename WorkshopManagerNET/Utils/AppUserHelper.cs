@@ -4,6 +4,26 @@ using System.Linq;
 using System.Text;
 using WorkshopManagerNET.Model;
 
+namespace WorkshopManagerNET.Model
+{
+  public enum AppRoleEnum { regular, supervisor, administrator, mechanician }
+
+  partial class AppUser
+  {
+    public string Token { get; set; }
+    public string Password { get; set; }
+    public static bool IsValidToInsert(AppUser appUser)
+    {
+      if (appUser == null)
+        return false;
+
+      return
+        appUser.PasswordHash != null &&
+        appUser.Username != null;
+    }
+  }
+}
+
 namespace WorkshopManager.net.Utils
 {
   class AppUserHelper
