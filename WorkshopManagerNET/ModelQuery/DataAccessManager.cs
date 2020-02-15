@@ -45,7 +45,7 @@ namespace WorkshopManager.net.ModelQuery
       {
         using (var dbAccess = new WorkshopManagerContext())
         {
-          dbAccess.Database.ExecuteSqlRaw("EXEC [dbo].[ClearDatabase]");
+          dbAccess.Database.ExecuteSqlRaw("EXEC [dbo].[ClearDatabase] @restoreRoles = 1");
         }
         Console.WriteLine("All database data has been dropped...");
         return true;

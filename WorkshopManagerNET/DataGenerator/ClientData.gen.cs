@@ -55,7 +55,7 @@ namespace WorkshopManager.net.DataGenerator
 
     public void MatchRandomlyWith(Order[] orders)
     {
-      LoadDbModels();
+      InsertModelsAndRelatedData();
       var clientIdsOfActiveOrders = new List<long>(); //-> because there shouldn't exists more than one active order (Registered || InProgress) of particullar client
       foreach (Order order in orders)
       {
@@ -113,7 +113,7 @@ namespace WorkshopManager.net.DataGenerator
       Models = JsonReader.GetModels().ToArray();
     }
 
-    public void LoadDbModels()
+    public void InsertModelsAndRelatedData()
     {
       try
       {

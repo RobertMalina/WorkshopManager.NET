@@ -9,6 +9,7 @@ using WorkshopManagerNET.Model;
 
 namespace WorkshopManagerNET.Model
 {
+  public enum AppRoleEnum { regular, supervisor, administrator, mechanician }
   partial class Worker
   {
     public override string ToString()
@@ -17,22 +18,36 @@ namespace WorkshopManagerNET.Model
     }
     public string UserName { get { return $"{FirstName.ToLower()}_{LastName.ToLower()}"; } }
   }
+
+  partial class AppUser
+  {
+    public string Token { get; set; }
+    public string Password { get; set; }
+    public static bool IsValidToInsert(AppUser appUser)
+    {
+      if (appUser == null)
+        return false;
+
+      return
+        appUser.PasswordHash != null &&
+        appUser.Username != null;
+    }
+  }
 }
 
 
 namespace WorkshopManager.net.DataGenerator
 {
-
   class MechanicianData : IDataGenerator<Mechanician>
   {
     // TODO do zmiany
     private const string bcryptServiceAddr = "http://localhost:4210/api/auth/receive/bcrypted";
     private const string _jsonFileName = "mechanicians.sample-data.json";
-
     private const int _maxMechanciansPerOrder = 3;
 
     private JsonModelsReader<Mechanician> _reader = null;
     private Mechanician[] _models = null;
+    private AppUserHelper _appUserHelper;
     public JsonModelsReader<Mechanician> JsonReader
     {
       get
@@ -45,7 +60,6 @@ namespace WorkshopManager.net.DataGenerator
       }
       set => _reader = value;
     }
-
     public Mechanician[] Models
     {
       get
@@ -59,32 +73,58 @@ namespace WorkshopManager.net.DataGenerator
       set => _models = value;
     }
 
+    private void PersistSystemUsers(WorkshopManagerContext dbAccess, Mechanician[] mechanicians)
+    {
+      var httpModule = new HttpModule();
+      List<AppUser> authUsers = new List<AppUser>();
+      foreach (Mechanician m in Models)
+      {
+        AppUser authUser = null;
+        var body = new Dictionary<string, string>();
+        body.Add("username", m.UserName);
+        body.Add("password", "zaq12wsx");
+        authUser = httpModule.Post<AppUser>(bcryptServiceAddr, body).Result;
+        if (AppUser.IsValidToInsert(authUser))
+        {
+          authUsers.Add(authUser);
+        }
+        else
+        {
+          throw new Exception("Bcrypt remote server returned invalid AppUser data...");
+        }
+      }
+      dbAccess.BulkInsert<AppUser>(authUsers);
+      dbAccess.SaveChanges();
+    }
+
+    private void AssignBasicRoles(
+      AppUser[] authUsers,
+      WorkshopManagerContext dbAccess,
+      AppRoleEnum basicRole = AppRoleEnum.regular
+      )
+    {
+      foreach (AppUser user in authUsers)
+      {
+        _appUserHelper.AssignRoles(user, new AppRoleEnum[] { basicRole });
+      }
+    }
+
     public bool PersistModels(WorkshopManagerContext dbAccess)
     {
       if (Models.Length == 0)
         LoadJSONModels();
 
-      var httpModule = new HttpModule();
+      PersistSystemUsers(dbAccess, Models);
 
-      List<AppUser> authUsers = new List<AppUser>();
+      var usernames = Models
+        .Select(m => m.UserName)
+        .ToArray();
+      var authUsers = dbAccess.Users
+        .Where(u => usernames
+        .Contains(u.Username))
+        .ToArray();
 
-      foreach (Mechanician m in Models)
-      {
-        AppUser authUser = null;
-        var body = new Dictionary<string, string>();
-        body.Add("Username", m.UserName);
-        body.Add("Password", "zaq12wsx");
-        authUser = httpModule.Post<AppUser>(bcryptServiceAddr, body).Result;
-        if (authUser != null)
-        {
-          authUsers.Add(authUser);
-        }
-      }
-      dbAccess.BulkInsert<AppUser>(authUsers);
-      dbAccess.SaveChanges();
-
-      var usernames = Models.Select(m => m.UserName).ToArray();
-      authUsers = dbAccess.Users.Where(u => usernames.Contains(u.Username)).ToList();
+      AssignBasicRoles(authUsers, dbAccess);
 
       foreach (Mechanician m in Models)
       {
@@ -100,13 +140,9 @@ namespace WorkshopManager.net.DataGenerator
       int res = -1;
       if (Models.Length > 0)
       {
-        try
-        {
-          dbAccess.Mechanicians.AddRange(Models);
-          dbAccess.BulkInsert(Models);
-          res = Models.Length;
-        }
-        catch { }
+        dbAccess.Mechanicians.AddRange(Models);
+        dbAccess.BulkInsert(Models);
+        res = Models.Length;
       }
       if (res != -1)
       {
@@ -124,20 +160,13 @@ namespace WorkshopManager.net.DataGenerator
       throw new NotImplementedException();
     }
 
-    public void LoadDbModels()
+    public void InsertModelsAndRelatedData()
     {
-      try
+      using (var dbAccess = new WorkshopManagerContext())
       {
-        using (var dbAccess = new WorkshopManagerContext())
-        {
-          Models = dbAccess.Workers.OfType<Mechanician>().ToList().ToArray();
-          if (Models.Length == 0)
-            PersistModels(dbAccess);
-        }
-      }
-      catch (Exception e)
-      {
-        Console.WriteLine(e);
+        Models = dbAccess.Workers.OfType<Mechanician>().ToList().ToArray();
+        if (Models.Length == 0)
+          PersistModels(dbAccess);
       }
     }
 
@@ -179,7 +208,7 @@ namespace WorkshopManager.net.DataGenerator
 
     public bool MatchRandomlyWithExistingOrders()
     {
-      LoadDbModels();
+      InsertModelsAndRelatedData();
       var bindings = new List<OrderToWorker>();
       try
       {

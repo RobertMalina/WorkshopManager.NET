@@ -11,7 +11,7 @@ namespace WorkshopManager.net.DataGenerator
   {
     JsonModelsReader<T> JsonReader { get; set; }
     void LoadJSONModels();
-    void LoadDbModels();
+    void InsertModelsAndRelatedData();
     T[] Models { get; set; }
     bool PersistModels(WorkshopManagerContext dbAccess = null);
     Task<bool> InsertModelsAsync();

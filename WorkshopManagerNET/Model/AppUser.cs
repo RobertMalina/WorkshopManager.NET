@@ -7,7 +7,7 @@ using System.Text;
 namespace WorkshopManagerNET.Model
 {
   [Table("AppUser")]
-  public class AppUser
+  public partial class AppUser
   {
     [Key]
     public long Id { get; set; }

@@ -14,11 +14,24 @@ namespace WorkshopManager.net.Utils
     public void Run()
     {
       var dataManager = new DataAccessManager();
+
+      AppUserHelper userHelper = new AppUserHelper();
+
       string cmd = string.Empty;
+      string originalCmd = string.Empty;
+
       while (!cmd.Equals("exit"))
       {
         Console.Write("WorkshopManagerCli> ");
+
         cmd = Console.ReadLine().ToLower();
+
+        if (cmd.Contains("user-helper"))
+        {
+          originalCmd = cmd;
+          cmd = cmd.Substring(0, 10);
+        }
+
         switch (cmd)
         {
           case "": // enter
@@ -75,7 +88,7 @@ namespace WorkshopManager.net.Utils
           case "i orders":
             {
               var generator = new OrderData();
-              generator.LoadDbModels();
+              generator.InsertModelsAndRelatedData();
               break;
             }
           case "list mechanicians":
@@ -101,7 +114,6 @@ namespace WorkshopManager.net.Utils
           case "db clear -a":
           case "db c -a":
             {
-
               dataManager.Clear(cmd);
               break;
             }
@@ -112,7 +124,17 @@ namespace WorkshopManager.net.Utils
             {
               dataManager.Clear(cmd);
               var generator = new OrderData();
-              generator.LoadDbModels();
+              generator.InsertModelsAndRelatedData();
+              break;
+            }
+          case "node-server login":
+            {
+
+              break;
+            }
+          case "user-helper": 
+            {
+              userHelper.HandleCliCommand(originalCmd);
               break;
             }
           case "exit":
